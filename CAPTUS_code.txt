@@ -1,0 +1,16 @@
+#CAPTUS Repository Link: https://github.com/edgardomortiz/Captus
+
+#Activate captus with conda
+conda activate captus
+
+#Clean
+captus_assembly clean -r ./file_with_read
+
+#Assemble
+captus_assembly assemble -r ./01_clean_reads/
+
+#Extract - (with a minimum nuclear identity threshold of 90%, and Abronia latifolia as the outgroup)
+captus_assembly align -e ./03_extractions_nuc_ident_90/ -o ./04_alignments_nuc_ident_90/ -f ALL --outgroup A_lat_EEA0113
+
+#Align - (with flanking regions [-f ALL], and Abronia latifolia as the outgroup)
+captus_assembly align -e ./03_extractions/ -o ./04_alignments_2.0/ -f ALL --outgroup A_lat_EEA0113
