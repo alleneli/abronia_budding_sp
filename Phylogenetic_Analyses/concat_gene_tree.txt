@@ -1,0 +1,51 @@
+#Create gene trees with IQ-Tree v2.2.2.6
+for file in *.fna; do iqtree -nt AUTO -ntmax 6 -m GTR+G -bb 1000 -s $file; done
+
+#Identify outlier branches with TreeShrink v1.3.9 with the alpha setting ‘-q 0.30’
+# this uses the script 'run_treeshrink.py'
+for file in *.fna.treefile; do run_treeshrink.py  -t $file -q "0.30"  -o . -O $file'.shrunk_0.30'; done
+
+#Remove outlier branches
+# this uses remove_long_branch_from_fna_treeshrink_0.30.py, modified from Vargas et al., 2020
+python remove_long_branch_from_fna_treeshrink_0.30.py
+
+#Remove unwanted sample from alignments, A_vil_aur_LAG556 was a problematic sample
+# this uses the script 'remove_sample_from_alignment.py'
+for file in *fna.ts; do python remove_sample_from_alignment.py -i "$file" -r A_vil_aur_LAG556 -o "${file%fna.ts}fna.ts.rmv"; done
+
+
+
+###################################################################
+#MAKE A COPY OF ALL ALIGNMENTS WITH BRANCHES REMOVED (.fna.ts.rmv)#
+#ONE SET IS FOR THE CONCATENATED TREE (IQ-TREE)####################
+#ONE SET IS FOR COALESCENT-CONSISTENT TREE (ASTRAL)################
+###################################################################
+
+
+
+###FOR COALESCENT-CONSISTENT TREE (ASTRAL)###
+#Make gene trees from alignments (with branches removed) for ASTRAL
+for file in *.fna.ts.rmv; do iqtree -nt AUTO -ntmax 6 -m GTR+G -bb 1000 -s $file; done
+
+#Concatenate gene trees into one file for ASTRAL
+cat *.ts.rmv.treefile > alltrees_final.ts
+
+#Produce coalescent-consistent ASTRAL tree (output is alltrees.tre)
+java -jar astral.5.7.8.jar -i alltrees.ts -o alltrees.tre 2>alltrees.log
+
+
+
+###FOR THE CONCATENATED TREE (IQ-TREE)###
+#Rename alignments with branches removed (.fna.ts.rmv) for python script
+for file in *.fna.ts.rmv; do mv -- "$file" "${file%.ts.rmv}.fna"; done
+
+#Concatenate all .fna with branches removed
+# this uses the script 'concatenate_all_fna.py'
+python3 concatenate_all_fna.py
+
+#Create gene trees with IQ-Tree v2.2.2.6
+iqtree -m GTR+G -bb 1000 -s supermatrix.fasta -spp supermatrix.model
+
+#Fix species names in output treefile
+# this uses 24_Abronia_names_script_v4_OMV_EA.py
+python 24_Abronia_names_script_v4_OMV_EA.py -i supermatrix.model.treefile.no -o .rename
