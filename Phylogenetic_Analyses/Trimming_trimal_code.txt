@@ -5,6 +5,10 @@
 # and good = matrices with no problematic regions. 
 # 218 were marked as good, 61 as questionable, and 66 as bad.
 
+#Variance in branch to tip length was assesed for each group
+# before and after trimming using the python script get_var_length.py
+python get_var_length.py
+
 #trim for all alignments, also the only trimming done for 'good' alignments
 for file in *fna; do trimal -in $file -out $file.gt_0.5 -gt 0.5; done
 
