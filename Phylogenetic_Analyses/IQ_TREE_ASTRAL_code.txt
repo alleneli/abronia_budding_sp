@@ -36,14 +36,14 @@ java -jar astral.5.7.8.jar -i alltrees.ts -o alltrees.tre 2>alltrees.log
 
 
 ###FOR THE CONCATENATED TREE (IQ-TREE)###
-#Rename alignments with branches removed (.fna.ts.rmv) for python script
+#Rename alignments with branches removed (.fna.ts.rmv) for python script (pulls all files ending in .fna in working directory)
 for file in *.fna.ts.rmv; do mv -- "$file" "${file%.ts.rmv}.fna"; done
 
 #Concatenate all .fna with branches removed
 # this uses the script 'concatenate_all_fna.py'
 python3 concatenate_all_fna.py
 
-#Create gene trees with IQ-Tree v2.2.2.6
+#Create concatenated species tree with IQ-Tree v2.2.2.6
 iqtree -m GTR+G -bb 1000 -s supermatrix.fasta -spp supermatrix.model
 
 #Fix species names in output treefile
