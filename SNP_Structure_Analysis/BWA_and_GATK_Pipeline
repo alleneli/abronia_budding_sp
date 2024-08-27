@@ -1,0 +1,66 @@
+############################################################
+###Make your own reference file with your own alignments!###
+############################################################
+
+#Here we make a custom reference file for BWA/GATK using your alignments from the 'Captus align' step.
+#I used 04_alignments > 03_trimmed > 06_informed > 01_coding_NUC > 04_genes_flanked.
+#Make sure the alignments are all trimmed exactly the way you want them, and put them all in 
+#one folder. Then use one of the following two scripts depending on what you want.
+# 1) if you just want to look for the longest sequence in each alignment then use this python script:
+'longest_seq_fasta_EA.py'
+# 2) Or if you want to just call the longest sequence from one taxon, then run this python script instead 
+#(you need to edit the script to look for your focal taxon, this one looks for aurita):
+'longest_seq_fasta_EA_aurita_only.py'
+#I used 'longest_seq_fasta_EA_aurita_only.py', as I wanted a reference using just aurita reads - 
+#however, you will have to customize that script to fit the focal taxon you want (just change the taxon name inside the script).
+#After that you need to run the script 'python add_filename_to_header.py' to make each header unique.
+#BWA and GATK need unique header names so this script will pull the unique alignment name from each 
+
+#Copy all of your alignments and the respective scripts into a folder.
+##CAREFUL!!## 
+#Make sure you have your alignments saved elsewhere before these next steps, 
+#we will be deleting them because the scripts automatically pull any file name in your working directory ending in '.fna'.
+#Now navigate to your working directory in the console and run the following one line at a time:
+
+python longest_seq_fasta_EA.py
+rm *.fna
+for file in *.longest; do mv -- "$file" "${file%.longest}";done
+python add_filename_to_header.py
+
+#Now concatenate into one file
+
+cat *_file_header.fna > clarkia_reference.fna
+
+#Now we want to make sure your reference file doesn’t have any indels (indels look like dashes: #“-------”),
+#lets turn those dashes to N’s (neutral placeholders instead of ACTG’s)
+
+sed 's/-/N/g' clarkia_reference.fna > clarkia_ref.fna
+
+##################
+###BWA and GATK###
+##################
+
+#Here we will make a SNP dataset from our cleaned reads using BWA and GATK.
+#Use the cleaned forward and reverse (R1 and R2) reads produced by the 'Captus Clean* step, from the folder 01_clean_reads.
+#Copy all your cleaned forward and reverse reads into a folder with all the contents of BWA_and_GATK folder 
+#(or get them from their respective github accounts, along with picard.jar from picard tools and igv.sh).
+#To the same folder, add your reference file made in the above steps (I used 'aurita_ref.fna'),
+#and the Bash script 'abronia_bwa_gatk_script_4.0.sh'. 
+##IMOPORTANT!!##
+#A note about this script, you will need to change the names of the files called throughout to match your reads, references, etc.
+#Things you will likely have to change:
+# - anytime it calls '.fasta.gz' if you are using a different file type like 'fq.gz'
+# - antyime it calls 'normalized_aurita_ref.fna' to your respective reference name (your reference file will be 'normalized' for this script in the next step)
+# - towards the end of the script it will create and call a series of files that start with 'abronia_combine', rename these if you want 
+# - it will create a list of all .g.cvf files named abr_list (for abronia list), you can rename this if you want, it will get called later in the script
+
+#Normalize your reference with GATK.
+java -jar gatk-package-4.4.0.0-local.jar NormalizeFasta -I abronia_ref.fna -O normalized_abronia_ref.fna
+
+#Run BWA GATK script.
+Bash abronia_bwa_gatk_script_4.0.sh
+
+#This should produce the file 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the final output, which can be viewed using the script igv.sh
+#(in the console run: bash igv.sh). This script should already be in the BWA_and_GATK folder.
+
+#If the script throws an error I reccomend running it one line (or block) at a time by copying them into the console. The script is very long so this is the easiest way to troubleshoot.
