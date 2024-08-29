@@ -42,12 +42,15 @@ sed 's/-/N/g' clarkia_reference.fna > clarkia_ref.fna
 
 #Here we will make a SNP dataset from our cleaned reads using BWA and GATK.
 #Use the cleaned forward and reverse (R1 and R2) reads produced by the 'Captus Clean* step, from the folder 01_clean_reads.
-#Copy all your cleaned forward and reverse reads into a folder with all the contents of BWA_and_GATK folder 
-#(or get them from their respective github accounts, along with picard.jar from picard tools and igv.sh).
-#To the same folder, add your reference file made in the above steps (I used 'aurita_ref.fna'),
-#and the Bash script 'abronia_bwa_gatk_script_4.0.sh'. 
+#Copy all your cleaned forward and reverse reads into a folder with the entire contents of the following toolkits:
+# - BWA (https://github.com/lh3/bwa)
+# - GATK (https://gatk.broadinstitute.org/hc/en-us/articles/360036194592-Getting-started-with-GATK4)
+# - Picard Tools (https://github.com/broadinstitute/picard)
+# - IGV (https://github.com/igvteam/igv)
+# - Your reference file made in the above steps (I used 'aurita_ref.fna')
+# - The Bash script 'abronia_bwa_gatk_script_4.0.sh' from this repository
 ##IMOPORTANT!!##
-#A note about this script, you will need to change the names of the files called throughout to match your reads, references, etc.
+#A note about the above bash script, you will need to change the names of the files called throughout to match your reads, references, etc.
 #Things you will likely have to change:
 # - anytime it calls '.fasta.gz' if you are using a different file type like 'fq.gz'
 # - antyime it calls 'normalized_aurita_ref.fna' to your respective reference name (your reference file will be 'normalized' for this script in the next step)
@@ -62,8 +65,7 @@ Bash abronia_bwa_gatk_script_4.0.sh
 
 #If the script throws an error I reccomend running it one line (or block) at a time by copying them into the console. The script is very long so this is the easiest way to troubleshoot.
 
-#This should produce the file 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the final output, which can be viewed in IGV using the script igv.sh
-#(in the console run: bash igv.sh). This script should already be in the BWA_and_GATK folder.
+#This should produce the file 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the final output, which can be viewed in IGV using the script igv.sh (in the console run: bash igv.sh).
 #Once IGV is running, us the top tabs to open your reference file (normalized_abronia_ref.fna) as the 'Genome' and 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the 'file'.
 
 ###########
