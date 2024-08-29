@@ -66,4 +66,9 @@ Bash abronia_bwa_gatk_script_4.0.sh
 #(in the console run: bash igv.sh). This script should already be in the BWA_and_GATK folder.
 #Once IGV is running, us the top tabs to open your reference file (normalized_abronia_ref.fna) as the 'Genome' and 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the 'file'.
 
+###########
+###PLINK###
+###########
+
+
 
