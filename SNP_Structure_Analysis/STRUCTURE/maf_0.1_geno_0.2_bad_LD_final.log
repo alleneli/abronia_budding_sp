@@ -1,0 +1,28 @@
+PLINK v2.00a6LM AVX2 Intel (30 Oct 2023)
+Options in effect:
+  --allow-extra-chr
+  --bfile maf_0.1_geno_0.2_bad_LD
+  --extract maf_0.1_geno_0.2_bad_LD.prune.in
+  --make-bed
+  --out maf_0.1_geno_0.2_bad_LD_final
+
+Hostname: bio-server01
+Working directory: /big-disk/home/eja56/Documents/Vargas_lab_2023/Rapid_reads_combined/Abronia_all_reads/BWA_GATK_PLINK_FINAL/PLINK_rename_noLAG_final
+Start time: Sun Mar  3 18:47:33 2024
+
+Random number seed: 1709520453
+257548 MiB RAM detected, ~240542 available; reserving 128774 MiB for main
+workspace.
+Using up to 48 threads (change this with --threads).
+47 samples (0 females, 0 males, 47 ambiguous; 47 founders) loaded from
+maf_0.1_geno_0.2_bad_LD.fam.
+Note: 323 nonstandard chromosome codes present.
+13567 variants loaded from maf_0.1_geno_0.2_bad_LD.bim.
+Note: No phenotype data present.
+--extract: 559 variants remaining.
+559 variants remaining after main filters.
+Writing maf_0.1_geno_0.2_bad_LD_final.fam ... done.
+Writing maf_0.1_geno_0.2_bad_LD_final.bim ... done.
+Writing maf_0.1_geno_0.2_bad_LD_final.bed ... done.
+
+End time: Sun Mar  3 18:47:33 2024
