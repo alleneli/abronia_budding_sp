@@ -40,6 +40,9 @@ sed 's/-/N/g' clarkia_reference.fna > clarkia_ref.fna
 ###BWA and GATK###
 ##################
 
+###Useful Resource for BWA/GATK###
+###Variant calling using GATK4 : https://www.melbournebioinformatics.org.au/tutorials/tutorials/variant_calling_gatk1/variant_calling_gatk1/
+
 #Here we will make a SNP dataset from our cleaned reads using BWA and GATK.
 #Use the cleaned forward and reverse (R1 and R2) reads produced by the 'Captus Clean* step, from the folder 01_clean_reads.
 #Copy all your cleaned forward and reverse reads into a folder with the entire contents of the following toolkits:
@@ -63,14 +66,94 @@ java -jar gatk-package-4.4.0.0-local.jar NormalizeFasta -I abronia_ref.fna -O no
 #Run BWA GATK script.
 Bash abronia_bwa_gatk_script_4.0.sh
 
-#If the script throws an error I reccomend running it one line (or block) at a time by copying them into the console. The script is very long so this is the easiest way to troubleshoot.
+#If the script throws an error I recommend running it one line (or block) at a time by copying them into the console. The script is very long so this is the easiest way to troubleshoot.
 
 #This should produce the file 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the final output, which can be viewed in IGV using the script igv.sh (in the console run: bash igv.sh).
-#Once IGV is running, us the top tabs to open your reference file (normalized_abronia_ref.fna) as the 'Genome' and 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the 'file'.
+#Once IGV is running, use the top tabs to open your reference file (normalized_abronia_ref.fna) as the 'Genome' and 'abronia_combine_genotyped_SelVar.g.vcf.gz' as the 'file'.
 
 ###########
 ###PLINK###
 ###########
+
+###Useful Resource for PLINK###
+## Drew Larson et al. 2021 Supplemental : Admixture may be extensive among hyperdominant Amazon rainforest tree species : Specifically the README from their Dryad repository, 
+## I have included their README in this repository as 'Larson_Admixture_README.pdf', the most useful part is the STRUCTURE section.
+
+#To start off you need to make custom X.plink.txt and X.pops.txt file, take a look at mine and read through the STRUCTURE section of 'Larson_Admixture_README.pdf'
+#An easy way to get started is by making a list of all your taxa based off of their filenames using list (ls) in the bash console.
+#Here is a blurb about how they should look from Larson et al. : 
+
+## X.plink.txt is a file that lists the samples to include in the subset in the following format:
+## sample_label(tab)sample_label. For example:
+## EstrL772 EstrL772
+## EsbrL733 EsbrL733
+
+## X.pops.txt is a comma-delimited file where the first column is the sample name and the second
+## column is the population (species) to which that sample is thought to belong. For example:
+## EswaL695,2
+## EswaL832,2
+## EscoL796,1
+## EscoL824,1
+
+#Once X.plink.txt and X.pops.txt are properly formatted you want to put them into a working directory with the following:
+# - the entire contents of PLINK and PLINK2.0
+# - your output .vcf from the BWA/GATK script 'abronia_combine_genotyped_SelVar.g.vcf.gz', that has been extracted/unzipped to make it 'abronia_combine_genotyped_SelVar.g.vcf'
+#After this I ran PLINK as follows:
+
+./plink --vcf abronia_combine_genotyped_SelVar.g.vcf --keep X.plink.txt --allow-extra-chr --double-id --make-bed --out no_gra
+
+./plink2 --allow-extra-chr --bfile no_gra --set-all-var-ids @_#_\$r_\$a --out no_gra_prefilter --make-bed
+
+./plink2 -bfile no_gra_prefilter  --geno 0.2 --maf 0.1 --indep-pairwise 50kb 1 0.1 --bad-ld --allow-extra-chr --out maf_0.1_geno_0.2_bad_LD --make-bed
+
+./plink2 --allow-extra-chr --bfile maf_0.1_geno_0.2_bad_LD --out maf_0.1_geno_0.2_bad_LD_final --make-bed --extract  maf_0.1_geno_0.2_bad_LD.prune.in 
+
+./plink2 -bfile maf_0.1_geno_0.2_bad_LD_final --recode vcf -out new_vcf_maf_0.1_geno_0.2_bad_LD_final
+
+#This will produce the .bim, .bam, .fam, and .log files we need for Structure
+
+###############
+###STRUCTURE###
+###############
+
+#I used Structure_threader (https://structure-threader.readthedocs.io/en/latest/) to run fastStructure, 
+#their documentation is great and the creator responds quickly to issues posted on the github (https://github.com/StuntsPT/Structure_threader/issues/new).
+#Understanding of STRCUTURE and Structure_threader is IMPERATIVE before you continue forward!
+
+#You will need to install Structure_threader
+
+pip3 install structure_threader --user
+
+structure_threader params -o test
+
+#You will need to also set a PATH to where Structure_threader was installed. NOTE this is not code you should just copy and paste, you need to know how to make A PATH through the /bin/
+
+export PATH=/home/eja56/.local/bin:$PATH
+
+#You will now need to make some custom files for Structure_threader and throw them into a working directory along with your PLINK outputs,
+#the details for making these is well documented on their webpage, and you can see examples of mine in the 'STRUCTURE' folder.
+#Here is a list of everything you need for your working directory:
+# - ind.txt (easily modified from PLINK's X.pops.txt)
+# - pops.txt (not to be confused with X.pops.txt, this is something simple you'll have to make for Structure_threader)
+# - mainparams (a text file from Structure_threader, you WILL have to edit this to fit your project, an example of mine is in the 'STRUCTURE' folder)
+# - extraparams (a text file from Structure_threader, you MAY have to edit this to fit your project, an example of mine is in the 'STRUCTURE' folder)
+# - maf_0.1_geno_0.2_bad_LD_final.bed
+# - maf_0.1_geno_0.2_bad_LD_final.bim
+# - maf_0.1_geno_0.2_bad_LD_final.fam
+# - maf_0.1_geno_0.2_bad_LD_final.log
+
+#Once everything was set up, I ran the following from the working directory:
+
+structure_threader run -K 10 -i maf_0.1_geno_0.2_bad_LD_final.bed --ind ind_cf.txt -o output_ind_cf -t 5 -fs /big-disk/home/eja56/.local/bin/fastStructure
+
+structure_threader run -K 5 -i maf_0.1_geno_0.2_bad_LD_final.bed --pop pops.txt -o output_pops -t 5 -fs /big-disk/home/eja56/.local/bin/fastStructure
+
+#If you want to see more plots you can use the following:
+
+structure_threader plot -i output_ind_cf -f faststructure -K 2 3 4 5 -o 2_5_plots --ind ind_cf.txt --use-ind-labels
+
+#If you made it this far, Congrats! It took me a semester and a half to get all this worked out (: happy coding
+(つ•_•)つ > ⌐■-■ > (つ▀¯▀)つ
 
 
 
