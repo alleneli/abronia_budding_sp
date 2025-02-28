@@ -8,5 +8,6 @@ Start with Abronia_bioclim_points_EA.R, either of the other scripts
 (Abronia_ecospat_statistical_tests.R, Abronia_niceOverPlot.R) can be performed next
 
 For Range Asymmetry Analysis:
+Use Abronia_get_sister_ranges.R
 
 Please read the in-code annotations!
