@@ -7,3 +7,5 @@ All necessary scripts are in the folder 'Scripts'
 
 The custom target reference file used in the CAPTUS alignment extract step is
 angiosperms353.abronia.fasta, provided by Matt Johnson (TTU)
+
+Details of the trimming input and output are in Abronia_gene_var.xlxs
