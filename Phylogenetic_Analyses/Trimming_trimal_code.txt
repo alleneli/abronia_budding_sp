@@ -9,13 +9,22 @@
 # before and after trimming using the python script get_var_length.py
 python get_var_length.py
 
+#Make directories to sort alignments
+mkdir -p B G Q
+
+#Move alignment into respective directories using Abronia_gene_var.xlsx, which we made from get_var_length.py
+# note, you may have to make it a .csv
+awk -F',' 'NR>1 { print "mv \"" $3 "\" " $4 "/" }' Abronia_gene_var.xlsx | bash
+
 #trim for all alignments, also the only trimming done for 'good' alignments
 for file in *fna; do trimal -in $file -out $file.gt_0.5 -gt 0.5; done
 
 #Additional trim for 'questionable' alignments
+# note, make sure these alignments get the above trimming as well
 for file in *fna.gt_0.5; do trimal -in $file -out $file.auto -automated1; done
 
 #Additional trim for 'bad' alignments
+# note, make sure these alignments get the above trimming as well
 for file in *auto; do trimal -in $file -out $file.st_005 -st 0.005; done
 
 #Renaming 'good' 'questionable' and 'bad' file suffixes back to .fna
