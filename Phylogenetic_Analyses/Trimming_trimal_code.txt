@@ -32,3 +32,11 @@ for file in *.fna.gt_0.5; do mv -- "$file" "${file%.fna.gt_0.5}.fna"; done
 for file in *.fna.auto; do mv -- "$file" "${file%.fna.auto}.fna"; done
 for file in *.fna.auto.st_005; do mv -- "$file" "${file%.fna.auto.st_005}.fna"; done
 
+#Before combining back into one folder for phylogentic analysis, we need to remove any rows in alignments that are entirely blank from trimming
+# for Bad and Questionable alignments, add this last filtering step
+for file in *fna; do trimal -in $file -out $file.spur -resoverlap 0.20 -seqoverlap 20; done
+
+#And now rename them back to .fna
+for file in *.fna.spur; do mv -- "$file" "${file%.fna.spur}.fna"; done
+
+
