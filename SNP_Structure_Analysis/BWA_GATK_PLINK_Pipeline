@@ -104,7 +104,7 @@ Bash abronia_bwa_gatk_script_4.0.sh
 
 ./plink2 --allow-extra-chr --bfile no_gra --set-all-var-ids @_#_\$r_\$a --out no_gra_prefilter --make-bed
 
-./plink2 -bfile no_gra_prefilter  --geno 0.2 --maf 0.1 --indep-pairwise 50kb 1 0.1 --bad-ld --allow-extra-chr --out maf_0.1_geno_0.2_bad_LD --make-bed
+./plink2 -bfile no_gra_prefilter  --geno 0.2 --maf 0.1 --indep-pairwise 50 1 0.1 --bad-ld --allow-extra-chr --out maf_0.1_geno_0.2_bad_LD --make-bed
 
 ./plink2 --allow-extra-chr --bfile maf_0.1_geno_0.2_bad_LD --out maf_0.1_geno_0.2_bad_LD_final --make-bed --extract  maf_0.1_geno_0.2_bad_LD.prune.in 
 
